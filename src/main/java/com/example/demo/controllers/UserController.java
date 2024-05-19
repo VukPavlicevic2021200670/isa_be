@@ -21,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @CrossOrigin("*")
 public class UserController {
-
     private final IUserRepository userRepository;
 
     @CrossOrigin("*")
@@ -47,11 +46,14 @@ public class UserController {
 
     @PostMapping("create-user-body")
     public ResponseEntity<?> createUserBody(@RequestBody @Valid UserModel userModel, BindingResult result) {
-        if(result.hasErrors()){
+        if (result.hasErrors()) {
             return new ResponseEntity<>("Neuspesno registrovan!", HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
         var entity = UserMapper.toEntity(userModel);
+
         userRepository.save(entity);
+
         return new ResponseEntity<UserModel>(userModel, HttpStatus.CREATED);
     }
 }
