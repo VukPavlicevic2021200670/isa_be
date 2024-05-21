@@ -1,13 +1,11 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.User;
-import com.example.demo.mappers.UserMapper;
 import com.example.demo.models.UserModel;
 import com.example.demo.models.UserPageModel;
-import com.example.demo.repositories.IUserRepository;
+import com.example.demo.models.UserProductsModel;
+import com.example.demo.services.IUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,39 +19,28 @@ import java.util.List;
 @RequiredArgsConstructor
 @CrossOrigin("*")
 public class UserController {
-    private final IUserRepository userRepository;
+    private final IUserService userService;
 
-    @CrossOrigin("*")
-    @GetMapping("get-first-name")
-    public String getFirstName() {
-        return "Petar";
+    @GetMapping("get-list")
+    public List<UserModel> getList(){
+        return userService.findAll();
     }
 
-    @GetMapping("get-user-list")
-    public List<UserModel> getUserList() {
-        return UserMapper.toModelList(userRepository.findAll());
+    @GetMapping("get-page-list")
+    public UserPageModel getPagedList(Integer pageNumber, Integer pageSize){
+        return userService.findPagedList(PageRequest.of(pageNumber, pageSize));
     }
 
-    @GetMapping("get-user-page-list")
-    public UserPageModel getUserPageList(Integer pageNumber, Integer pageSize) {
-        return UserMapper.toModelPagedList(userRepository.findAll(PageRequest.of(pageNumber, pageSize)));
+    @GetMapping("get-user-product-model")
+    public List<UserProductsModel> getUserProductList(){
+        return userService.findUserProductAll();
     }
 
-    @PostMapping("create-user")
-    public boolean createUser(String firstName, String lastName) {
-        return true;
-    }
-
-    @PostMapping("create-user-body")
-    public ResponseEntity<?> createUserBody(@RequestBody @Valid UserModel userModel, BindingResult result) {
-        if (result.hasErrors()) {
+    @PostMapping("create")
+    public ResponseEntity<?> create(@RequestBody @Valid UserModel userModel, BindingResult result){
+        if(result.hasErrors()){
             return new ResponseEntity<>("Neuspesno registrovan!", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        var entity = UserMapper.toEntity(userModel);
-
-        userRepository.save(entity);
-
-        return new ResponseEntity<UserModel>(userModel, HttpStatus.CREATED);
+        return new ResponseEntity<UserModel>(userService.create(userModel), HttpStatus.CREATED);
     }
 }

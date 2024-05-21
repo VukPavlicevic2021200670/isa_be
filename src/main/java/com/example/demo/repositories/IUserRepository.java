@@ -9,7 +9,6 @@ import java.util.List;
 
 public interface IUserRepository extends JpaRepository<User, Integer> {
     User findByEmail(String email);
-
     @Query(nativeQuery = true, value = "SELECT * FROM users WHERE first_name LIKE (%:firstName%)")
     List<User> findAllByFirstName(@Param("firstName") String firstName);
 }
